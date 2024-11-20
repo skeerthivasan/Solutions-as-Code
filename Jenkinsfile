@@ -148,7 +148,7 @@ pipeline {
                 sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" + solname.toLowerCase() + "-install.yml"
             } 
             if  (solname == 'Oracle') {
-                sh script: "cd /root/COPY_OF_ORACLE_BUILD/ansible; export ANSIBLE_COLLECTIONS_PATHS=/root/.ansible/collections;export ANSIBLE_ROLES_PATH=/root/.ansible/collections/ansible_collections/opitzconsulting/ansible_oracle/roles;export ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3.6; ansible-playbook -i inventory-asm-demo -e hostgroup=dbfs playbooks/single-instance-asm.yml --private-key "  + '${SSH_KEY}' + " --user ansible  -v"
+                sh script: "cd /root/COPY_OF_ORACLE_BUILD/ansible; export ANSIBLE_COLLECTIONS_PATHS=/root/.ansible/collections; export ANSIBLE_ROLES_PATH=/root/.ansible/collections/ansible_collections/opitzconsulting/ansible_oracle/roles; export ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3.6; ansible-playbook -i inventory-asm-demo -e hostgroup=dbfs playbooks/single-instance-asm.yml --private-key "  + '${SSH_KEY}' + " --user ansible  -v"
             }
             if  (solname == 'veeam') {
 		dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-setup") {
