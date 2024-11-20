@@ -53,7 +53,7 @@ else:
 #os.chdir(os.path.join(os.getcwd(), '..', '..', 'ansible')) 
 # These files needs to be checked in so that the hardcoded lines can be removed in future.
 
-direct_asm_path = '/root/Oracle-build/ansible'
+direct_asm_path = '/root/COPY_OF_ORACLE_BUILD/ansible'
 os.chdir(direct_asm_path)
 print(os.getcwd())
 
