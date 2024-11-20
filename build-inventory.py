@@ -62,10 +62,9 @@ def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm-d
     This method will remove the old hosts.yml file (if it exists) and create a new one with the provided IP addresses.
     '''
     if os.path.exists(hosts_file):
-        os.remove(hosts_file)  # Remove the old file
-        print(f"Old file {hosts_file} removed.")
-
-   
+        os.truncate(hosts_file, 0)  # Truncate the file to size 0
+        print(f"Old file {hosts_file} is truncated.")
+        
     hosts_data = {
         'all': {
             'children': {
