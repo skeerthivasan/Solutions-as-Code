@@ -60,12 +60,13 @@ print("This the above line for nowing the absolute path")
 
 def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm/hosts.yml'):
     '''
-    This method will remove the old hosts.yml file and create a new one with the provided IP addresses.
+    This method will remove the old hosts.yml file (if it exists) and create a new one with the provided IP addresses.
     '''
     if os.path.exists(hosts_file):
-        os.truncate(hosts_file, 0)  # Truncate the file to size 0
-        print(f"Old file {hosts_file} is truncated.")
+        os.remove(hosts_file)  # Remove the old file
+        print(f"Old file {hosts_file} removed.")
 
+   
     hosts_data = {
         'all': {
             'children': {
@@ -83,34 +84,37 @@ def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm/h
 
     # Write the new data to the hosts file
     with open(hosts_file, 'w') as file:
+        file.write('---\n')  # Add the YAML document start marker
         yaml.dump(hosts_data, file, default_flow_style=False)
 
-
 def create_and_update_host_vars(ip_addresses, domain_names):
+    '''
+    Will create a new host_vars template with new IP address and domain names
+    '''
     base_dir =  os.getcwd() +  '/inventory-asm/host_vars'
     for ip_address, domain_name in zip(ip_addresses, domain_names):
         ip_dir = os.path.join(base_dir, ip_address)
-        databases_file_path = os.path.join(ip_dir, 'databases.yml')
+        databases_file_path = os.path.join(ip_dir, 'databases.yml')       
         tnsnames_file_path = os.path.join(ip_dir, 'tnsnames.yml')
-
         os.makedirs(ip_dir, exist_ok=True)
 
+        # Define databases_content with proper structure and indentation
         databases_content = {
             'rman_retention_policy': "RECOVERY WINDOW OF 14 DAYS",
             'rman_channel_disk': "format '/u01/rmanbackup/%d/%d_%T_%U'",
             'rman_controlfile_autobackup_disk': "'/u01/rmanbackup/%d/%d_%F'",
-                        'rman_device_type_disk': 'PARALLELISM 1 BACKUP TYPE TO COMPRESSED BACKUPSET',
+            'rman_device_type_disk': 'PARALLELISM 1 BACKUP TYPE TO COMPRESSED BACKUPSET',
             'oracle_databases': [
-                "{{ oracle_database_db1 }}"
+                '- "{{ oracle_database_db1 }}"'
             ],
             'oracle_pdbs': [
-                "{{ oracle_pdb_db1_orclpdb }}"
+                '- "{{ oracle_pdb_db1_orclpdb }}"'
             ],
             'oracle_listeners_config': {
                 'LISTENER': {
                     'home': 'db21-gi-ee',
                     'address': [
-                        {'host': domain_name, 'port': 1521, 'protocol': 'TCP'}
+                        {'- host': domain_name, 'port': 1521, 'protocol': 'TCP'}
                     ]
                 }
             },
@@ -119,17 +123,22 @@ def create_and_update_host_vars(ip_addresses, domain_names):
                     'connect_timeout': 5,
                     'retry_count': 3,
                     'address': [
-                        {'host': domain_name, 'port': 1521, 'protocol': 'TCP'}
+                        {'- host': domain_name, 'port': 1521, 'protocol': 'TCP'}
                     ]
                 }
-            }
+            },
+            'tnsnames_installed': [
+                {'- home': 'db2103-gi-ee', 'state': 'present', 'tnsname': 'ORCLPDB'}
+            ]
         }
 
         with open(databases_file_path, 'w') as db_file:
+            db_file.write('---\n')  # Add the YAML document start marker
             yaml.dump(databases_content, db_file, default_flow_style=False)
 
         print(f"Created {databases_file_path} with initial content.")
 
+        # Define tnsnames_content with correct structure
         tnsnames_content = {
             'oracle_tnsnames_config': {
                 'ORCLPDB': {
@@ -137,23 +146,23 @@ def create_and_update_host_vars(ip_addresses, domain_names):
                     'connect_timeout': 5,
                     'retry_count': 3,
                     'address': [
- {'host': domain_name, 'port': 1521, 'protocol': 'TCP'}
+                        {'- host': domain_name, 'port': 1521, 'protocol': 'TCP'}
                     ]
                 }
             },
             'tnsnames_installed': [
-                {'home': 'db2103-gi-ee', 'state': 'present', 'tnsname': 'ORCLPDB'}
+                {'- home': 'db2103-gi-ee', 'state': 'present', 'tnsname': 'ORCLPDB'}
             ]
         }
 
         with open(tnsnames_file_path, 'w') as tns_file:
+            tns_file.write('---\n')  # Add the YAML document start marker
             yaml.dump(tnsnames_content, tns_file, default_flow_style=False)
 
         print(f"Created {tnsnames_file_path} with initial content.")
 
 append_ip_to_hosts(ip_addresses=ips)
-create_and_update_host_vars(ip_addresses=ips,domain_names=names)
-
+create_and_update_host_vars(ip_addresses=ips, domain_names=names)
 
 
 
