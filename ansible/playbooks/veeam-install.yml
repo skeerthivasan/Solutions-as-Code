@@ -1,5 +1,5 @@
 - name: Veeam Backup & Replication Install
-  hosts: all
+  hosts: veeam-server
   tasks:
     - name: reboot the node
       ansible.windows.win_reboot:
