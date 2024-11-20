@@ -19,6 +19,7 @@ pipeline {
         stage('Build solution') {
             environment {
                 SSH_KEY = credentials('ansible')
+		WINDOWS_ADMIN_PASS = credentials('windows_admin_password')
                 VC_PASS = credentials("${params.vcenter}")
                 INFOBLOX_PASS = credentials('infoblox')
                 AWS_ACCESS_KEY_ID = 'PSFBSAZRAECJNHNFJEKCPOHOOPMGMKMJLIJLKBCMLB'
@@ -152,7 +153,9 @@ pipeline {
             if  (solname == 'veeam') {
                 def vpath = workspace + "/" + "modules" + "/" + "veeam-setup".trim()
 		println "vpath ------${vpath}-----"
-                sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" +  "veeam-install.yml" 
+		println "Windows_Admin_Pass ------${Windows_Admin_Pass}-----"
+
+                sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" +  "veeam-install.yml" + "-e ansible_password=${WINDOWS_ADMIN_PASS}" 
             }
             else {
                 sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" +  "common.yml --private-key "  + '${SSH_KEY}' + " --user ansible"
