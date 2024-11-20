@@ -155,7 +155,7 @@ pipeline {
 		println "vpath ------${vpath}-----"
 		println "Windows_Admin_Pass ------${Windows_Admin_Pass}-----"
 
-                sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" +  "veeam-install.yml" + "-e ansible_password=${WINDOWS_ADMIN_PASS}" 
+                sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" +  " veeam-install.yml" + " -e ansible_password=${WINDOWS_ADMIN_PASS}" 
             }
             else {
                 sh script: "ansible-playbook -i hosts.ini ../../ansible/playbooks/" +  "common.yml --private-key "  + '${SSH_KEY}' + " --user ansible"
