@@ -1,5 +1,0 @@
-- name: Reboot the machine
-  hosts: all
-  tasks:
-    - name: ping the node
-      win_ping: 
