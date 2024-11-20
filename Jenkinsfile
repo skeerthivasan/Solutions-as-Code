@@ -155,6 +155,7 @@ pipeline {
                   def vpath = workspace + "/" + "modules" + "/" + "veeam-setup".trim()
 		  println "vpath ------${vpath}-----"
 		  println "Windows_Admin_Pass ------${WINDOWS_ADMIN_PASS}-----"
+                  sh script: "ansible-galaxy collection install veeamhub.veeam"
                   sh script: "cat hosts.ini"
                	  sh script: "echo [veeam-server] > inventory.ini"
                   sh script: "cat hosts.ini >> inventory.ini"
