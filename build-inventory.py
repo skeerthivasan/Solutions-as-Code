@@ -53,12 +53,11 @@ else:
 #os.chdir(os.path.join(os.getcwd(), '..', '..', 'ansible')) 
 # These files needs to be checked in so that the hardcoded lines can be removed in future.
 
-direct_asm_path = '/root/production_runs/oracle-ansible'
+direct_asm_path = '/root/Oracle-build/ansible'
 os.chdir(direct_asm_path)
 print(os.getcwd())
-print("This the above line for nowing the absolute path")
 
-def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm/hosts.yml'):
+def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm-demo/hosts.yml'):
     '''
     This method will remove the old hosts.yml file (if it exists) and create a new one with the provided IP addresses.
     '''
@@ -91,7 +90,7 @@ def create_and_update_host_vars(ip_addresses, domain_names):
     '''
     Will create a new host_vars template with new IP address and domain names
     '''
-    base_dir =  os.getcwd() +  '/inventory-asm/host_vars'
+    base_dir =  os.getcwd() +  '/inventory-asm-demo/host_vars'
     for ip_address, domain_name in zip(ip_addresses, domain_names):
         ip_dir = os.path.join(base_dir, ip_address)
         databases_file_path = os.path.join(ip_dir, 'databases.yml')       
