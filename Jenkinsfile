@@ -158,7 +158,8 @@ pipeline {
                   sh script: "cat hosts.ini"
                	  sh script: "echo [veeam-server] > inventory.ini"
                   sh script: "cat hosts.ini >> inventory.ini"
-               	  sh script: "ansible-playbook --check -i inventory.ini ../../ansible/playbooks/" +  "veeam-install.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true'" 
+                  sh script: "cat inventory.ini"
+               	  sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam-install.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true'" 
               }
             }
             else {
