@@ -13,7 +13,7 @@
       delay: 3
 
     - include_role:
-        name: veeamhub.veeam.veeam_vas
+        name: veeam_vas
         tasks_from: vbr_install
       vars:
         version: "12"
