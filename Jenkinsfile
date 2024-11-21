@@ -54,6 +54,7 @@ pipeline {
 
 	    if (params.Build) {
               if (solname == 'veeam') {
+/*
 		dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-setup") {
                   println  "Setting Veeam Setup VM"
                   def vpath = workspace + "/" + "modules" + "/" + "veeam-setup".trim()
@@ -97,7 +98,7 @@ pipeline {
             	  sh script: "python3 ../../build-inventory.py " + "veeam-windows-backupproxy-server"
             	  sh script: "cat hosts.ini"
 	       }
-
+*/
       	       dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-linux-backupproxy-server") {
             	  println  "Creating: Veeam - Linux BackUp Proxy Server"
                   def vlpath = workspace + "/" + "modules" + "/" + "veeam-linux-backupproxy-server".trim()
