@@ -142,7 +142,7 @@ pipeline {
             	  sh script: "python3 ../../build-inventory.py " + "veeam-windows-repo-server"
             	  sh script: "cat hosts.ini"
 	       }
-*/
+
       	       dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-linux-repo-server") {
             	  println  "Creating: Veeam - Linux Linux Repo Server"
                   def vlpath = workspace + "/" + "modules" + "/" + "veeam-linux-repo-server".trim()
@@ -164,9 +164,6 @@ pipeline {
             	  sh script: "python3.6 ../../build-inventory.py " + "veeam-linux-repo-server"
             	  sh script: "cat hosts.ini"
 	      }
-
-
-
 
 	    } else {
             	println "Updating backend file"
