@@ -16,16 +16,16 @@ vm_gateway = "10.21.210.1"
 
 
 #vm 
-vm_count = "2"
+vm_count = "4"
 vm_name = "kube"
 network = "10.21.210.0"
 netmask = "24"
 vm_ip = ["10.21.210.22"]
 vmware_os_template = "linux-ubuntu-22.04lts-v24.02"
 vm_cpus = 32
-vm_memory = 131072
+vm_memory = 64000
 os_disk_size = "250"
-data_disk_size = "50"
+data_disk_size = "150"
 datastore_os = "sn1-x70-d08-21-vm-infra-vol"
 datastore_data = "sn1-x70-d08-21-vm-infra-vol"
 contentlib_name = "Shared-vCenter-ContentLib"
