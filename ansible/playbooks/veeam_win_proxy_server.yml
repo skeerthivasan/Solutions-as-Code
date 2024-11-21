@@ -1,0 +1,21 @@
+- name: Reboot the machine
+  hosts: veeam-win-proxy-server 
+  tasks:
+    - name: print message
+      ansible.builtin.debug:
+        msg: "Veeam Windows Proxy Server is {{ inventory_hostname }}"
+
+    - name:  Load Veeam PowerShell Snap-In 
+      ansible.windows.win_powershell:
+        script: |
+          Import-Module Veeam.Backup.PowerShell 
+
+    - name: Add Credentails for Windows Veeam Proxy Server
+      ansible.windows.win_powershell:
+        script: |
+          Add-VBRWinServer -Name {{ inventory_hostname }} -Password {{ ansible_password }} -User {{ ansible_user }}  -Description "Veeam Windows Proxy Server"
+
+    - name: Add Windows Veeam Proxy Server
+      ansible.windows.win_powershell:
+        script: |
+          Add-VBRVProxy -Server {{ inventory_hostname }}
