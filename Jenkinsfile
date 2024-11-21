@@ -155,7 +155,7 @@ pipeline {
                   def vpath = workspace + "/" + "modules" + "/" + "veeam-setup".trim()
                   //def veeam_windows_proxy_server = sh(script: 'head -n 1 /var/lib/jenkins/workspace/Solution-automation/modules/veeam-windows-backupproxy-server/hosts.ini')
 		  println "vpath ------${vpath}-----"
-		  println "veeam_windows_proxy_server ------${veeam_windows_proxy_server}-----"
+		  //println "veeam_windows_proxy_server ------${veeam_windows_proxy_server}-----"
 		  println "Windows_Admin_Pass ------${WINDOWS_ADMIN_PASS}-----"
                   sh script: "ansible-galaxy collection install veeamhub.veeam"
                   sh script: "cat hosts.ini"
