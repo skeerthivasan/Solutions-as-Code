@@ -85,6 +85,42 @@ def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm-d
         file.write('---\n')  # Add the YAML document start marker
         yaml.dump(hosts_data, file, default_flow_style=False)
 
+
+#os.chdir(os.path.join(os.getcwd(), '..', '..', 'ansible')) 
+# These files needs to be checked in so that the hardcoded lines can be removed in future.
+
+direct_asm_path = '/root/COPY_OF_ORACLE_BUILD/ansible'
+os.chdir(direct_asm_path)
+print(os.getcwd())
+
+def append_ip_to_hosts(ip_addresses, hosts_file= os.getcwd() + '/inventory-asm-demo/hosts.yml'):
+    '''
+    This method will remove the old hosts.yml file (if it exists) and create a new one with the provided IP addresses.
+    '''
+    if os.path.exists(hosts_file):
+        os.truncate(hosts_file, 0)  # Truncate the file to size 0
+        print(f"Old file {hosts_file} is truncated.")
+        
+    hosts_data = {
+        'all': {
+            'children': {
+                'dbfs': {
+                    'hosts': {}
+                }
+            }
+        }
+    }
+
+    # Append new IP addresses to the hosts section
+    for ip_address in ip_addresses:
+        hosts_data['all']['children']['dbfs']['hosts'][ip_address] = {'ansible_ssh_user': 'ansible'}
+        print(f"IP address {ip_address} added successfully to {hosts_file}")
+
+    # Write the new data to the hosts file
+    with open(hosts_file, 'w') as file:
+        file.write('---\n')  # Add the YAML document start marker
+        yaml.dump(hosts_data, file, default_flow_style=False)
+
 def create_and_update_host_vars(ip_addresses, domain_names):
     '''
     Will create a new host_vars template with new IP address and domain names
@@ -96,7 +132,8 @@ def create_and_update_host_vars(ip_addresses, domain_names):
         tnsnames_file_path = os.path.join(ip_dir, 'tnsnames.yml')
         os.makedirs(ip_dir, exist_ok=True)
 
-        # Define databases_content with proper structure and indentation
+        # Define databases_content with proper structure and indentation, This approach has double quote issues hence switching to different way of copying templates and updating the contents
+        '''
         databases_content = {
             'rman_retention_policy': "RECOVERY WINDOW OF 14 DAYS",
             'rman_channel_disk': "format '/u01/rmanbackup/%d/%d_%T_%U'",
@@ -133,10 +170,26 @@ def create_and_update_host_vars(ip_addresses, domain_names):
         with open(databases_file_path, 'w') as db_file:
             db_file.write('---\n')  # Add the YAML document start marker
             yaml.dump(databases_content, db_file, default_flow_style=False)
-
-        print(f"Created {databases_file_path} with initial content.")
+        '''
+        domain_name = domain_name.split('.')[0]
+        # Define source and destination paths
+        source = "/root/COPY_OF_ORACLE_BUILD/ansible/trueworking_templates/databases.yml"
+        destination = databases_file_path
+        # Construct the cp command
+        command = f"cp -rf {source} {destination}"
+        # Execute the command
+        os.system(command)
+        sed_command = f"sed -i 's/host: oracle-vm-1/host: {domain_name}/g' {destination}"
+        # Run the command using subprocess
+        try:
+            subprocess.run(sed_command, shell=True, check=True)
+            print(f"occurrences of 'oracle-vm-1' have been replaced with {domain_name} in {destination}.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error occurred while running sed command: {e}")
+            print(f"Created {databases_file_path} with initial content.")
 
         # Define tnsnames_content with correct structure
+        '''
         tnsnames_content = {
             'oracle_tnsnames_config': {
                 'ORCLPDB': {
@@ -156,12 +209,23 @@ def create_and_update_host_vars(ip_addresses, domain_names):
         with open(tnsnames_file_path, 'w') as tns_file:
             tns_file.write('---\n')  # Add the YAML document start marker
             yaml.dump(tnsnames_content, tns_file, default_flow_style=False)
-
+        '''
+        source = "/root/COPY_OF_ORACLE_BUILD/ansible/trueworking_templates/tnsnames.yml"
+        destination = tnsnames_file_path
+        # Construct the cp command
+        command = f"cp -rf {source} {destination}"
+        os.system(command)
+        sed_command = f"sed -i 's/host: oracle-vm-1/host: {domain_name}/g' {destination}"
+        # Run the command using subprocess
+        try:
+            subprocess.run(sed_command, shell=True, check=True)
+            print(f"occurrences of 'oracle-vm-1' have been replaced with {domain_name} in {destination}.")
+        except subprocess.CalledProcessError as e:
+            print(f"Error occurred while running sed command: {e}")
         print(f"Created {tnsnames_file_path} with initial content.")
 
 append_ip_to_hosts(ip_addresses=ips)
 create_and_update_host_vars(ip_addresses=ips, domain_names=names)
-
 
 
 
