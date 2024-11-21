@@ -121,6 +121,52 @@ pipeline {
             	  sh script: "cat hosts.ini"
 	      }
 
+              dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-windows-repo-server") {
+            	  println  "Creating: Veeam - Windows Repo Server"
+                  def vwpath = workspace + "/" + "modules" + "/" + "veeam-windows-repo-server".trim()
+		  echo "current working directory: ${pwd()}"
+		  println "vwpath ------${vwpath}-----"
+	 	  println "Updating backend file"
+            	  sh script: "sed -i -e 's/sol_name/"+"veeam-windows-repo-server"+"/g' backend.tf"
+		  println "Executing Infrstructure build step" 
+            	  sh script: "/bin/rm -rf .terraform"
+	          print  "sh script: ${tf_cmd} init -upgrade"
+	          sh script: "${tf_cmd} init -upgrade"
+            	  count = sh(script: "grep vm_count main.tfvars | awk  '{print \$3}' |xargs", returnStdout: true)
+            	  //count = sh(script: "cat hosts.ini|wc -l", returnStdout: true)
+           	  println count
+            	  println vm_count
+            	  total_count = vm_count.toInteger() + count.toInteger()
+            	  println total_count
+		  sh script: "$tf_cmd apply -auto-approve -var-file=$vwpath"  + "/main.tfvars" + " -var vsphere_password=" + '${VC_PASS}'	 + " -var ansible_key=" + '${SSH_KEY}'	+	 " -var infoblox_pass=" + '${INFOBLOX_PASS}'  +	" -var vm_count=" + total_count
+            	  sh script: "python3 ../../build-inventory.py " + "veeam-windows-repo-server"
+            	  sh script: "cat hosts.ini"
+	       }
+*/
+      	       dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-linux-repo-server") {
+            	  println  "Creating: Veeam - Linux Linux Repo Server"
+                  def vlpath = workspace + "/" + "modules" + "/" + "veeam-linux-repo-server".trim()
+        	  echo "Inside Dir: ${pwd()}"
+		  println "vlpath ------${vlpath}-----"
+	 	  println "Updating backend file"
+            	  sh script: "sed -i -e 's/sol_name/"+"veeam-linux-repo-server"+"/g' backend.tf"
+		  println "Executing Infrstructure build step" 
+            	  sh script: "/bin/rm -rf .terraform"
+	          print  "sh script: ${tf_cmd} init -upgrade"
+	          sh script: "${tf_cmd} init -upgrade"
+            	  count = sh(script: "grep vm_count main.tfvars | awk  '{print \$3}' |xargs", returnStdout: true)
+            	  //count = sh(script: "cat hosts.ini|wc -l", returnStdout: true)
+           	  println count
+            	  println vm_count
+            	  total_count = vm_count.toInteger() + count.toInteger()
+            	  println total_count
+		  sh script: "$tf_cmd apply -auto-approve -var-file=$vlpath"  + "/main.tfvars" + " -var vsphere_password=" + '${VC_PASS}'	 + " -var ansible_key=" + '${SSH_KEY}'	+	 " -var infoblox_pass=" + '${INFOBLOX_PASS}'  +	" -var vm_count=" + total_count
+            	  sh script: "python3.6 ../../build-inventory.py " + "veeam-linux-repo-server"
+            	  sh script: "cat hosts.ini"
+	      }
+
+
+
 
 	    } else {
             	println "Updating backend file"
