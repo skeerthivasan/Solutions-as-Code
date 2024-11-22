@@ -197,6 +197,8 @@ pipeline {
             if  (solname == 'veeam') {
 		dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-setup") {
                   def vpath = workspace + "/" + "modules" + "/" + "veeam-setup".trim()
+                  def VEEAM_WINDOWS_PROXY_SERVER = sh(script: 'head -n 1 /var/lib/jenkins/workspace/Solution-automation/modules/veeam-windows-backupproxy-server/hosts.ini')
+
 		  println "vpath ------${vpath}-----"
 		  //println "veeam_windows_proxy_server ------${veeam_windows_proxy_server}-----"
 		  println "Windows_Admin_Pass ------${WINDOWS_ADMIN_PASS}-----"
@@ -210,7 +212,7 @@ pipeline {
                   sh script: "cat ../veeam-linux-repo-server/hosts.ini >> inventory.ini"
                   sh script: "cat inventory.ini"
                	  //sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam-install.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true'" 
-               	  sh script: "ansible-playbook -i proxy.ini ../../ansible/playbooks/" +  "veeam_win_proxy_server.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true'" 
+               	  sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam_win_proxy_server.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true veeam_windows_proxy_server=${VEEAM_WINDOWS_PROXY_SERVER}'" 
               }
             }
             //else {
