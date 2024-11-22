@@ -1,5 +1,5 @@
-- name: Reboot the machine
-  hosts: veeam-win-proxy-server 
+- name: Install Windows Veeam Proxy Server 
+  hosts: veeam-server
   tasks:
     - name: print message
       ansible.builtin.debug:
