@@ -1,7 +1,6 @@
 - name: Install Windows Veeam Proxy Server 
   hosts: veeam-server
   tasks:
-    - name: print message
       ansible.builtin.debug:
         msg: "Veeam Windows Proxy Server is {{ veeam_windows_repo_server }}"  
 
@@ -14,7 +13,7 @@
       win_shell: |
           Add-VBRWinServer -Name {{ veeam_windows_repo_server }} -Password {{ ansible_password }} -User {{ ansible_user }}
           $server = Get-VBRServer -Name {{ veeam_windows_repo_server }} 
-          Add-VBRBackupRepository -Name {{ veeam_windows_repo_server }} -Server $server -Folder "c:\" -Type WinLocal 
+          Add-VBRBackupRepository -Name {{ veeam_windows_repo_server }} -Server $server -Folder "c:\PureStorage" -Type WinLocal 
       args:
         executable: powershell
 
