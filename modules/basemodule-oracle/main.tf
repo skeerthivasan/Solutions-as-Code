@@ -3,15 +3,15 @@ terraform {
 
     vsphere = {
       source  = "hashicorp/vsphere"
-      version = "2.1.1"
+      version = "2.10.0"
     }
-
     infoblox = {
     source = "infobloxopen/infoblox"
-    version = "2.3.0"
+    version = "2.8.0"
     }
   }
 }
+
 
 
 ## Build VM
@@ -20,7 +20,7 @@ data "vsphere_datacenter" "datacenter" {
 }
 
 data "vsphere_datastore" "datastore_os" {
-  name = var.datastore_os 
+  name = var.datastore_os
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
@@ -40,14 +40,15 @@ data "vsphere_compute_cluster" "cluster" {
 }
 
 data "vsphere_network" "network" {
-  name          = var.vmSubnet 
+  name          = var.vmSubnet
   datacenter_id = data.vsphere_datacenter.datacenter.id
 }
 
-# data "vsphere_virtual_machine" "template" {
-#   name = var.vmware_os_template
-#   datacenter_id = data.vsphere_datacenter.datacenter.id
-# }
+data "vsphere_network" "local_network" {
+  name          = "VM Network"
+  datacenter_id = data.vsphere_datacenter.datacenter.id
+}
+
 data "vsphere_content_library" "my_content_library" {
   name = var.contentlib_name
 }
@@ -63,15 +64,24 @@ resource "infoblox_ip_allocation" "alloc1" {
   network_view="default"
   #cidr = var.network + "/" + var.netmask
   ipv4_cidr = format("%s/%s",var.network,var.netmask)
-                       
+
   dns_view="INTERNAL" # may be commented out
   fqdn=format("%s-%d.%s",var.vm_name,count.index +1,var.internal_domain)
   enable_dns = "true"
   comment = "Allocating an IPv4 address"
 }
 
+resource "vsphere_virtual_disk" "common_disk" {
+  size               = 40
+  type               = "eagerZeroedThick"
+  vmdk_path          = "SharedPure/shared_disk.vmdk"
+  create_directories = true
+  datacenter         = data.vsphere_datacenter.datacenter.name
+  datastore          = data.vsphere_datastore.datastore_data.name
+}
+
 resource "vsphere_virtual_machine" "vm" {
-  #depends_on = infoblox
+  depends_on = [vsphere_virtual_disk.common_disk]
   count            = var.vm_count
   name    = trimsuffix( format("%s-%d.${var.internal_domain}",var.vm_name,count.index +1),"." )
   resource_pool_id = data.vsphere_resource_pool.pool.id
@@ -80,16 +90,23 @@ resource "vsphere_virtual_machine" "vm" {
   memory   = var.vm_memory
   num_cores_per_socket = 2
   sync_time_with_host = true
-  guest_id = var.osguest_id 
+  guest_id = var.osguest_id
   firmware = "efi"
   scsi_controller_count = 4
+  scsi_type        = "pvscsi"
 
   network_interface {
     network_id   = data.vsphere_network.network.id
+    ovf_mapping    = "Network 1"
+  }
+
+  network_interface {
+    network_id   = data.vsphere_network.local_network.id
+    ovf_mapping    = "Network 2"
   }
   # disk {
   #   label = "BOOT-DISK"
-  #   unit_number = 0 
+  #   unit_number = 0
   #   size  = 2
 
   #   #eagerly_scrub = true
@@ -109,7 +126,7 @@ resource "vsphere_virtual_machine" "vm" {
     datastore_id = data.vsphere_datastore.datastore_data.id
     unit_number = 14
   }
-  
+
   disk {
     label = "DATA-DISK2"
     size        = 2000
@@ -122,23 +139,34 @@ resource "vsphere_virtual_machine" "vm" {
     datastore_id = data.vsphere_datastore.datastore_data.id
     unit_number = 30
   }
+  #disk {
+  #  label = "DATA-DISK4"
+  #  size        = 500
+  #  datastore_id = data.vsphere_datastore.datastore_data.id
+  #  unit_number = 45
+  #}
+  # Attach the shared disk to the VM with multi-writer support
   disk {
-    label = "DATA-DISK4"
-    size        = 500
+    label            = "shared-disk"
     datastore_id = data.vsphere_datastore.datastore_data.id
-    unit_number = 45
+    thin_provisioned = false
+    unit_number      = 50
+    disk_sharing     = "sharingMultiWriter"
+    disk_mode        = "independent_persistent"
+    attach           = true
+    path             = "SharedPure/shared_disk.vmdk"
   }
 
 
   clone {
-    
+
     #template_uuid = data.vsphere_virtual_machine.template.id
     template_uuid = data.vsphere_content_library_item.my_ovf_item.id
     customize {
       linux_options {
-        
+
         host_name = format("%s-%d", var.vm_name ,count.index +1)
-        domain    = "puretec.purestorage.com"   #trimsuffix( var.internal_domain, "." ) 
+        domain    = "puretec.purestorage.com"   #trimsuffix( var.internal_domain, "." )
       }
       network_interface {
 
@@ -149,13 +177,17 @@ resource "vsphere_virtual_machine" "vm" {
        ipv4_gateway    = var.gateway
        dns_suffix_list = [var.internal_domain]
        dns_server_list = var.dns_servers
+      network_interface {
+          ipv4_address = var.ip[count.index]
+          ipv4_netmask = 24
+        }
     }
   }
 
   provisioner "file" {
     source = "scripts/resizefs.sh"
     destination = "/home/ansible/resizefs.sh"
-    
+
   }
   connection {
     type     = "ssh"
@@ -170,17 +202,19 @@ resource "vsphere_virtual_machine" "vm" {
     inline = [
       "set -x",
       "chmod +x /home/ansible/*sh",
-      "sudo sh /home/ansible/resizefs.sh"
+       "sudo sh /home/ansible/resizefs.sh"
     ]
   }
-
-  # provisioner "local-exec" {
-  #   command = "ansible-playbook -i ${vsphere_virtual_machine.vm[count.index].default_ip_address}, --private-key ~/ansible.key --user ansible ../../ansible/playbooks/common.yml"
-  # }
-  
-  # provisioner "local-exec" {
-  #   command = "ansible-playbook -i ${vsphere_virtual_machine.vm[count.index].default_ip_address}, --private-key ~/ansible.key --user ansible ../../ansible/playbooks/mysql.yml"
-  # }
 }
 
+resource "null_resource" "vm_setup" {
+  count = length(vsphere_virtual_machine.vm)  # Loop through the number of VMs created
 
+  provisioner "local-exec" {
+    command = "python3 ${path.module}/scripts/modify_vm.py ${var.vsphere_server} ${var.vsphere_user} '${var.vsphere_password}' ${vsphere_virtual_machine.vm[count.index].name}"
+  }
+
+  triggers = {
+    vm_id = vsphere_virtual_machine.vm[count.index].id
+  }
+}
