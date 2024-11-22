@@ -3,7 +3,7 @@
   tasks:
     - name: print message
       ansible.builtin.debug:
-        msg: "Veeam Windows Proxy Server is {{ inventory_hostname }}"
+        msg: "Veeam Windows Proxy Server is {{ groups["veeam-win-proxy-server"}[0] }}"
 
     - name:  Load Veeam PowerShell Snap-In 
       ansible.windows.win_powershell:
