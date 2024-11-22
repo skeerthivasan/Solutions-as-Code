@@ -1,7 +1,7 @@
-
 vsphere_server = "flashstack-vcenter.puretec.purestorage.com"
 vsphere_user = "administrator@vsphere.local"
 vsphere_password = ""
+infoblox_pass = ""
 
 #common
 osguest_id = "oracleLinux64Guest"
@@ -11,13 +11,13 @@ dns_servers = ["10.21.93.16"]
 vm_cluster = "MetroCluster1"
 dc = "SolutionsLab"
 vm_gateway = "10.21.210.1"
-#vm 
+#vm
 vm_count = "1"
-vm_name = "oracle-demo"
+vm_name = "keerthi-demo"
 network = "10.21.210.0"
 netmask = "24"
-vm_ip = ["10.21.210.22"]
-vmware_os_template = "linux-oel-8-v24.10"
+vm_ip = ["192.168.10.10", "192.168.10.11"]
+vmware_os_template = "linux-oel-8-v24.11"
 vm_cpus = 16
 vm_memory = 65536
 os_disk_size = "100"
