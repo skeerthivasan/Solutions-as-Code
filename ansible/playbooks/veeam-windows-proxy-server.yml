@@ -19,3 +19,8 @@
       ansible.windows.win_powershell:
         script: |
           Add-VBRVProxy -Server {{ veeam_windows_proxy_server }}
+
+    - name: Configure Windows Veeam Proxy Server
+      ansible.windows.win_powershell:
+        script: |
+          Add-VBRViProxy -Server {{ veeam_windows_proxy_server }}
