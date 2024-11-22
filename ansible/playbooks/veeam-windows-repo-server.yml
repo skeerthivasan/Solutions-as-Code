@@ -1,6 +1,7 @@
 - name: Install Windows Veeam Proxy Server 
   hosts: veeam-server
   tasks:
+    - name: Server Name 
       ansible.builtin.debug:
         msg: "Veeam Windows Proxy Server is {{ veeam_windows_repo_server }}"  
 
