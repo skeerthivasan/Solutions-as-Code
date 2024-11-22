@@ -234,7 +234,6 @@ pipeline {
 
         if (params.Destroy) {
 	      if (solname == 'veeam') {
-/*
 		dir("/var/lib/jenkins/workspace/Solution-automation/modules/veeam-setup") {
                   println  "Destroying Veeam Setup"
                   def vpath = workspace + "/" + "modules" + "/" + "veeam-setup".trim()
