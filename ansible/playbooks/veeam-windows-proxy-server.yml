@@ -3,7 +3,7 @@
   tasks:
     - name: print message
       ansible.builtin.debug:
-        msg: "Veeam Windows Proxy Server is {{ groups["veeam-win-proxy-server"}[0] }}"
+        msg: "Veeam Windows Proxy Server is {{ veeam_windows_proxy_server }}  
 
     - name:  Load Veeam PowerShell Snap-In 
       ansible.windows.win_powershell:
@@ -13,9 +13,9 @@
     - name: Add Credentails for Windows Veeam Proxy Server
       ansible.windows.win_powershell:
         script: |
-          Add-VBRWinServer -Name {{ inventory_hostname }} -Password {{ ansible_password }} -User {{ ansible_user }}  -Description "Veeam Windows Proxy Server"
+          Add-VBRWinServer -Name {{ veeam_windows_proxy_server }} -Password {{ ansible_password }} -User {{ ansible_user }}  -Description "Veeam Windows Proxy Server"
 
     - name: Add Windows Veeam Proxy Server
       ansible.windows.win_powershell:
         script: |
-          Add-VBRVProxy -Server {{ inventory_hostname }}
+          Add-VBRVProxy -Server {{ veeam_windows_proxy_server }}
