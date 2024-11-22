@@ -1,4 +1,4 @@
-pipeline {
+p/ipeline {
     agent any
     options {
         ansiColor('xterm')
@@ -209,9 +209,9 @@ pipeline {
                   sh script: "cat ../veeam-linux-repo-server/hosts.ini >> inventory.ini"
                   sh script: "cat inventory.ini"
                	  //sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam-install.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true'" 
-//                  veeam_windows_proxy_server = sh(script: 'head -n 1 /var/lib/jenkins/workspace/Solution-automation/modules/veeam-windows-backupproxy-server/hosts.ini')
-//           	  println veeam_windows_proxy_server
-//               	  sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam-windows-proxy-server.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true veeam_windows_proxy_server=10.21.210.142'" 
+                  veeam_windows_proxy_server = sh(script: 'head -n 1 /var/lib/jenkins/workspace/Solution-automation/modules/veeam-windows-backupproxy-server/hosts.ini')
+           	  println veeam_windows_proxy_server
+               	  sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam-windows-proxy-server.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true veeam_windows_proxy_server=10.21.210.142'" 
                   veeam_windows_rep_server = sh(script: 'head -n 1 /var/lib/jenkins/workspace/Solution-automation/modules/veeam-windows-repo-server/hosts.ini')
            	  println veeam_windows_repo_server
                	  sh script: "ansible-playbook -i inventory.ini ../../ansible/playbooks/" +  "veeam-windows-proxy-server.yml" + " -e 'ansible_user=Administrator ansible_password=${WINDOWS_ADMIN_PASS} ansible_connection=winrm ansible_shell_type=cmd ansible_port=5985 ansible_winrm_transport=ntlm ansible_winrm_server_cert_validation=ignore ansible_winrm_scheme=http ansible_winrm_kerberos_delegation=true veeam_windows_proxy_server=10.21.210.73'" 
